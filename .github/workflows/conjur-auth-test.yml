@@ -13,7 +13,7 @@ jobs:
 
       - name: Authenticate to Conjur
         env:
-          EDGE: https://dev-conjur.csint.cz:443
+          EDGE: https://csas-sandbox.secretsmgr.cyberark.cloud
           API_KEY: ${{ secrets.CONJUR_APIKEY }}
         run: |
 
