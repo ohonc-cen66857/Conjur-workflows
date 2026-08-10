@@ -1,5 +1,5 @@
 name: "Conjur Authentication"
-description: "Authenticate a Conjur host and expose a masked short-lived token to following steps"
+description: "Authenticate a Conjur host and prepare a masked short-lived token"
 
 inputs:
   host-id:
@@ -14,7 +14,7 @@ runs:
   using: "composite"
 
   steps:
-    - name: Authenticate to Conjur
+    - name: "Authenticate to Conjur"
       shell: bash
       env:
         CONJUR_EDGE_URL: "https://csas-sandbox.secretsmgr.cyberark.cloud"
@@ -36,6 +36,7 @@ runs:
           --data "$CONJUR_API_KEY")"
 
         CONJUR_TOKEN="$(cat "$TOKEN_FILE")"
+
         rm -f "$TOKEN_FILE"
 
         if [ "$HTTP_CODE" != "200" ]; then
@@ -53,6 +54,5 @@ runs:
 
         echo "::add-mask::$CONJUR_TOKEN"
 
-        printf '%s\n' "CONJUR_TOKEN=$CONJUR_TOKEN" >> "$GITHUB_ENV"
-        printf '%s\n' "CONJUR_EDGE=$CONJUR_EDGE_URL" >> "$GITHUB_ENV"
-`
+        echo "CONJUR_TOKEN=$CONJUR_TOKEN" >> "$GITHUB_ENV"
+        echo "CONJUR_EDGE=$CONJUR_EDGE_URL" >> "$GITHUB_ENV"
