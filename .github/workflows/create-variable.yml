@@ -1,0 +1,73 @@
+name: Create Conjur Variable
+
+on:
+  workflow_dispatch:
+
+    inputs:
+
+      host-id:
+        description: "Conjur Host Identity"
+        required: true
+        type: string
+
+      policy-path:
+        description: "Policy Path"
+        required: true
+        type: string
+
+      variable-name:
+        description: "Variable Name"
+        required: true
+        type: string
+
+jobs:
+
+  auth:
+
+    uses: ./.github/workflows/conjur-authn.yml
+
+    with:
+      host-id: ${{ inputs.host-id }}
+
+  create-variable:
+
+    needs: auth
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Generate Policy File
+
+        run: |
+
+          cat > variable.yml <<EOF
+          - !variable ${{ inputs.variable-name }}
+
+          - !permit
+            resource: !variable ${{ inputs.variable-name }}
+            privileges: [ read, execute, update ]
+            role: !group write
+          EOF
+
+          echo "Generated policy:"
+          cat variable.yml
+
+      - name: Update Policy
+
+        env:
+          EDGE: https://TVUJ-CLOUD-ENDPOINT
+          TOKEN: ${{ needs.auth.outputs.conjur-token }}
+
+        run: |
+
+          POLICY_ID="${{ inputs.policy-path }}"
+
+          POLICY_ENC=$(printf '%s' "$POLICY_ID" | sed 's|/|%2F|g')
+
+          curl -sk \
+            -X PATCH \
+            -H "Authorization: Token token=$TOKEN" \
+            -H "Content-Type: application/yaml" \
+            --data-binary @variable.yml \
+            "$EDGE/api/policies/conjur/policy/$POLICY_ENC"
