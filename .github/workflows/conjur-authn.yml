@@ -1,6 +1,7 @@
-name: Conjur Auth Test
+name: Conjur Authentication
 
 on:
+
   workflow_call:
 
     inputs:
@@ -14,6 +15,9 @@ on:
       conjur-token:
         value: ${{ jobs.auth.outputs.conjur-token }}
 
+      edge:
+        value: ${{ jobs.auth.outputs.edge }}
+
 jobs:
 
   auth:
@@ -21,11 +25,13 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
+
       conjur-token: ${{ steps.auth.outputs.conjur-token }}
+      edge: ${{ steps.auth.outputs.edge }}
 
     steps:
 
-      - name: Authenticate to Conjur
+      - name: Authenticate
         id: auth
 
         env:
@@ -47,4 +53,10 @@ jobs:
 
           echo "Token Length: ${#TOKEN}"
 
+          if [ ${#TOKEN} -lt 100 ]; then
+            echo "Authentication failed"
+            exit 1
+          fi
+
           echo "conjur-token=$TOKEN" >> $GITHUB_OUTPUT
+          echo "edge=$EDGE" >> $GITHUB_OUTPUT
