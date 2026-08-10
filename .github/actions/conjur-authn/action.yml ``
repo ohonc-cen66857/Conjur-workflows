@@ -1,0 +1,58 @@
+name: "Conjur Authentication"
+description: "Authenticate a Conjur host and expose a masked short-lived token to following steps"
+
+inputs:
+  host-id:
+    description: "Full Conjur host identity"
+    required: true
+
+  api-key:
+    description: "Conjur host API key"
+    required: true
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Authenticate to Conjur
+      shell: bash
+      env:
+        CONJUR_EDGE_URL: "https://csas-sandbox.secretsmgr.cyberark.cloud"
+        CONJUR_HOST_ID: ${{ inputs.host-id }}
+        CONJUR_API_KEY: ${{ inputs.api-key }}
+
+      run: |
+        LOGIN_ENC="host%2F$(printf '%s' "$CONJUR_HOST_ID" | sed 's|/|%2F|g')"
+
+        TOKEN_FILE="$(mktemp)"
+
+        HTTP_CODE="$(curl -sS -k \
+          --output "$TOKEN_FILE" \
+          --write-out "%{http_code}" \
+          --request POST \
+          "$CONJUR_EDGE_URL/api/authn/conjur/$LOGIN_ENC/authenticate" \
+          --header "Content-Type: application/json" \
+          --header "Accept-Encoding: base64" \
+          --data "$CONJUR_API_KEY")"
+
+        CONJUR_TOKEN="$(cat "$TOKEN_FILE")"
+        rm -f "$TOKEN_FILE"
+
+        if [ "$HTTP_CODE" != "200" ]; then
+          echo "Conjur authentication failed with HTTP status $HTTP_CODE."
+          exit 1
+        fi
+
+        if [ -z "$CONJUR_TOKEN" ]; then
+          echo "Conjur authentication returned an empty token."
+          exit 1
+        fi
+
+        echo "Conjur authentication succeeded."
+        echo "Token length: ${#CONJUR_TOKEN}"
+
+        echo "::add-mask::$CONJUR_TOKEN"
+
+        printf '%s\n' "CONJUR_TOKEN=$CONJUR_TOKEN" >> "$GITHUB_ENV"
+        printf '%s\n' "CONJUR_EDGE=$CONJUR_EDGE_URL" >> "$GITHUB_ENV"
+`
