@@ -1,15 +1,28 @@
 name: Conjur Test
 
 on:
-  workflow_dispatch
+  workflow_dispatch:
+    inputs:
+
+      edge:
+        description: "Conjur URL"
+        required: true
+        default: "https://dev-conjur.csint.cz:443"
+
+      policy-path:
+        description: "Policy Path"
+        required: true
 
 jobs:
+
   test:
 
     runs-on: ubuntu-latest
 
     steps:
 
-      - name: Test CURL
+      - name: Print values
         run: |
-          curl --version
+          echo EDGE=${{ inputs.edge }}
+          echo POLICY=${{ inputs.policy-path }}
+`
