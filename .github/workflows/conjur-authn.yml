@@ -29,7 +29,7 @@ jobs:
         id: auth
 
         env:
-          EDGE: https://<TVUJ-CLOUD-ENDPOINT>
+          EDGE: https://csas-sandbox.secretsmgr.cyberark.cloud
           API_KEY: ${{ secrets.CONJUR_APIKEY }}
 
         run: |
