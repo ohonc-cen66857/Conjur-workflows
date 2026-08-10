@@ -72,8 +72,8 @@ jobs:
             echo "$TOKEN"
             echo 'EOF'
           } >> $GITHUB_OUTPUT
-
-          echo "edge=$EDGE" >> $GITHUB_OUTPUT
           echo "Output prepared"
           echo "edge=$EDGE" >> $GITHUB_OUTPUT
+        
+          
           
