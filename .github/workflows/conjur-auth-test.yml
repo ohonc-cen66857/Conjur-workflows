@@ -9,12 +9,18 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    outputs:
+      conjur-token: ${{ steps.auth.outputs.conjur-token }}
+
     steps:
 
       - name: Authenticate to Conjur
+        id: auth
+
         env:
-          EDGE: https://csas-sandbox.secretsmgr.cyberark.cloud
+          EDGE: https://<TVUJ-CLOUD-ENDPOINT>
           API_KEY: ${{ secrets.CONJUR_APIKEY }}
+
         run: |
 
           HOST_ID="data/workloads/ondra-int"
@@ -28,4 +34,6 @@ jobs:
             --header "Accept-Encoding: base64" \
             --data "$API_KEY")
 
-          echo "Token length: ${#TOKEN}"
+          echo "Token Length: ${#TOKEN}"
+
+          echo "conjur-token=$TOKEN" >> $GITHUB_OUTPUT
