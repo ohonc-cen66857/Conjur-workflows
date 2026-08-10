@@ -67,5 +67,13 @@ jobs:
           
           echo "::add-mask::$TOKEN"
 
-          echo "conjur-token=$TOKEN" >> $GITHUB_OUTPUT
+          {
+            echo 'conjur-token<<EOF'
+            echo "$TOKEN"
+            echo 'EOF'
+          } >> $GITHUB_OUTPUT
+
           echo "edge=$EDGE" >> $GITHUB_OUTPUT
+          echo "Output prepared"
+          echo "edge=$EDGE" >> $GITHUB_OUTPUT
+          
