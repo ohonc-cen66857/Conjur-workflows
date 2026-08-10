@@ -63,7 +63,7 @@ jobs:
             exit 1
           fi
 
-          echo "::add-mask::$TOKEN"
+         
 
           echo "conjur_token=$TOKEN" >> "$GITHUB_OUTPUT"
           echo "edge=$EDGE" >> "$GITHUB_OUTPUT"
