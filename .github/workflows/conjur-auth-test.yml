@@ -1,0 +1,31 @@
+name: Conjur Auth Test
+
+on:
+  workflow_dispatch
+
+jobs:
+
+  auth:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Authenticate to Conjur
+        env:
+          EDGE: https://dev-conjur.csint.cz:443
+          API_KEY: ${{ secrets.CONJUR_APIKEY }}
+        run: |
+
+          HOST_ID="data/workloads/ondra-int"
+
+          LOGIN_ENC="host%2F$(echo "$HOST_ID" | sed 's|/|%2F|g')"
+
+          TOKEN=$(curl -sk \
+            --request POST \
+            "$EDGE/api/authn/conjur/$LOGIN_ENC/authenticate" \
+            --header "Content-Type: application/json" \
+            --header "Accept-Encoding: base64" \
+            --data "$API_KEY")
+
+          echo "Token length: ${#TOKEN}"
