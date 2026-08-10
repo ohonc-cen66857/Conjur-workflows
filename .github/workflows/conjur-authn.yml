@@ -6,7 +6,7 @@ on:
 
     inputs:
 
-      host-id:
+      host_id:
         required: true
         type: string
 
@@ -17,8 +17,8 @@ on:
 
     outputs:
 
-      conjur-token:
-        value: ${{ jobs.auth.outputs.conjur-token }}
+      conjur_token:
+        value: ${{ jobs.auth.outputs.conjur_token }}
 
       edge:
         value: ${{ jobs.auth.outputs.edge }}
@@ -31,7 +31,7 @@ jobs:
 
     outputs:
 
-      conjur-token: ${{ steps.auth.outputs.conjur-token }}
+      conjur_token: ${{ steps.auth.outputs.conjur_token }}
       edge: ${{ steps.auth.outputs.edge }}
 
     steps:
@@ -45,7 +45,7 @@ jobs:
 
         run: |
 
-          HOST_ID="${{ inputs.host-id }}"
+          HOST_ID="${{ inputs.host_id }}"
 
           LOGIN_ENC="host%2F$(echo "$HOST_ID" | sed 's|/|%2F|g')"
 
@@ -64,16 +64,11 @@ jobs:
           fi
 
           echo "::add-mask::$TOKEN"
-          
-          echo "::add-mask::$TOKEN"
 
           {
-            echo 'conjur-token<<EOF'
+            echo "conjur_token<<EOF"
             echo "$TOKEN"
-            echo 'EOF'
+            echo "EOF"
           } >> $GITHUB_OUTPUT
-          echo "Output prepared"
+
           echo "edge=$EDGE" >> $GITHUB_OUTPUT
-        
-          
-          
