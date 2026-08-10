@@ -6,7 +6,7 @@ on:
 
     inputs:
 
-      host_id:
+      host-id:
         required: true
         type: string
 
@@ -45,9 +45,9 @@ jobs:
 
         run: |
 
-          HOST_ID="${{ inputs.host_id }}"
+          HOST_ID="${{ inputs.host-id }}"
 
-          LOGIN_ENC="host%2F$(echo "$HOST_ID" | sed 's|/|%2F|g')"
+          LOGIN_ENC="host%2F$(printf '%s' "$HOST_ID" | sed 's|/|%2F|g')"
 
           TOKEN=$(curl -sk \
             --request POST \
@@ -65,10 +65,5 @@ jobs:
 
           echo "::add-mask::$TOKEN"
 
-          {
-            echo "conjur_token<<EOF"
-            echo "$TOKEN"
-            echo "EOF"
-          } >> $GITHUB_OUTPUT
-
-          echo "edge=$EDGE" >> $GITHUB_OUTPUT
+          echo "conjur_token=$TOKEN" >> "$GITHUB_OUTPUT"
+          echo "edge=$EDGE" >> "$GITHUB_OUTPUT"
