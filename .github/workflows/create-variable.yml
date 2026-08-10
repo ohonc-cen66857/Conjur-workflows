@@ -1,37 +1,26 @@
 name: Create Conjur Variable
 
 on:
-  workflow_dispatch:
+
+  workflow_call:
 
     inputs:
 
-      host-id:
-        description: "Conjur Host Identity"
-        required: true
-        type: string
-
       policy-path:
-        description: "Policy Path"
         required: true
         type: string
 
       variable-name:
-        description: "Variable Name"
+        required: true
+        type: string
+
+      conjur-token:
         required: true
         type: string
 
 jobs:
 
-  auth:
-
-    uses: ./.github/workflows/conjur-authn.yml
-
-    with:
-      host-id: ${{ inputs.host-id }}
-
   create-variable:
-
-    needs: auth
 
     runs-on: ubuntu-latest
 
@@ -57,7 +46,6 @@ jobs:
 
         env:
           EDGE: https://TVUJ-CLOUD-ENDPOINT
-          TOKEN: ${{ needs.auth.outputs.conjur-token }}
 
         run: |
 
@@ -67,7 +55,7 @@ jobs:
 
           curl -sk \
             -X PATCH \
-            -H "Authorization: Token token=$TOKEN" \
+            -H "Authorization: Token token=${{ inputs.conjur-token }}" \
             -H "Content-Type: application/yaml" \
             --data-binary @variable.yml \
             "$EDGE/api/policies/conjur/policy/$POLICY_ENC"
