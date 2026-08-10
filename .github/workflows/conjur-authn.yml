@@ -67,3 +67,10 @@ jobs:
 
           echo "conjur_token=$TOKEN" >> "$GITHUB_OUTPUT"
           echo "edge=$EDGE" >> "$GITHUB_OUTPUT"
+
+      - name: Debug Step Outputs
+
+        run: |
+
+          echo "STEP TOKEN=[${{ steps.auth.outputs.conjur_token }}]"
+          echo "STEP EDGE=[${{ steps.auth.outputs.edge }}]"
